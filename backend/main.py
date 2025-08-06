@@ -19,14 +19,14 @@ def create_app():
         try:
             test_db_connection()
             print(
-                f"\n{Fore.GREEN}{Style.BRIGHT}🚀 SLICKPATCH APP Server started on port {PORT}\n"
+                f"\n{Fore.GREEN}{Style.BRIGHT}🚀Server started on port {PORT}\n"
             )
             yield
         except Exception as e:
             print(f"\n{Fore.RED}❌ Error: {str(e)}\n")
         finally:
             print(
-                f"\n{Fore.YELLOW}{Style.BRIGHT}🛑 SLICKPATCH APP Server Shutdown\n")
+                f"\n{Fore.YELLOW}{Style.BRIGHT}🛑Server Shutdown\n")
 
     # Configuración condicional para documentación
     docs_url = "/docs" if ENVIRONMENT == "development" else None
@@ -34,7 +34,7 @@ def create_app():
     openapi_url = "/api/openapi.json" if ENVIRONMENT == "development" else None
 
     app = FastAPI(
-        title="SLITCHPATCH APP API",
+        title="API",
         description="",
         version="0.0.1",
         lifespan=lifespan,
@@ -68,7 +68,7 @@ async def health_check():
     """Endpoint de verificación de salud del sistema"""
     return {
         "status": "healthy",
-        "service": "slickpatch_backend",
+        "service": "backend",
         "version": "0.0.1",
     }
 
@@ -77,7 +77,7 @@ async def health_check():
 async def root():
     """Endpoint raíz con información del API"""
     return {
-        "message": "SLITCHPATCH APP API",
+        "message": "API",
         "version": "0.0.1",
         "docs": (
             "/docs" if ENVIRONMENT == "development" else "Not available in production"
