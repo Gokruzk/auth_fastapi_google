@@ -6,7 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config.db import test_db_connection
 
-# from routers.auth import user, auth
+from routers.auth import user 
+#, auth
 
 PORT = int(os.getenv("PORT"))
 ENVIRONMENT = os.getenv("ENVIRONMENT")
@@ -57,9 +58,9 @@ app = create_app()
 
 # ==================== AUTENTICACIÓN Y USUARIOS ====================
 # app.include_router(auth.router, prefix="/api/v1/auth",
-#                    tags=["🔐 Autenticación"])
+#                    tags=["Autenticación"])
 
-# app.include_router(user.router, prefix="/api/v1/users", tags=["👥 Usuarios"])
+app.include_router(user.router, prefix="/api/v1/users", tags=["Usuarios"])
 
 # ==================== ENDPOINTS DE UTILIDAD ====================
 @app.get("/health")

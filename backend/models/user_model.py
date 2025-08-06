@@ -23,9 +23,6 @@ class RolUsuario(Base):
     # Relación uno a muchos: un rol puede tener varios usuarios
     usuarios: Mapped[List["Usuario"]] = relationship(back_populates="rol")
 
-    def __repr__(self) -> str:
-        return f"RolUsuario(id_rol={self.id_rol!r}, rol={self.rol!r})"
-
 
 class Usuario(Base):
     __tablename__ = "usuario"
@@ -41,8 +38,5 @@ class Usuario(Base):
     updated_at: Mapped[Optional[date]]
     deleted_at: Mapped[Optional[date]]
 
-    rol_id: Mapped[int] = mapped_column(ForeignKey("rol_usuario.id_rol"))
+    id_rol: Mapped[int] = mapped_column(ForeignKey("rol_usuario.id_rol"))
     rol: Mapped["RolUsuario"] = relationship(back_populates="usuarios")
-
-    def __repr__(self) -> str:
-        return f"Usuario(cedula={self.cedula!r}, nombres={self.nombres!r}, rol_id={self.rol_id!r})"
