@@ -14,12 +14,13 @@ class RolUsuarioDTO(BaseDTO):
     rol: str
 
 
-class Usuario(BaseDTO):
+class UsuarioDTO(BaseDTO):
     email: str
     cedula: str
     nombres: str
     apellidos: str
     celular: str
+    contrasena: str
     bool_status: bool
     created_at: datetime
     updated_at: Optional[date]
@@ -27,12 +28,15 @@ class Usuario(BaseDTO):
     
     id_rol: int
 
-class CreateUsuario(BaseDTO):
+class CreateUsuarioDTO(BaseDTO):
     email: str
     cedula: str
     nombres: str
     apellidos: str
     celular: str
     bool_status: bool
-    created_at: datetime
+    created_at: date
+    updated_at: Optional[date] = None
+    deleted_at: Optional[date] = None
     id_rol: int
+    contrasena: str

@@ -7,9 +7,8 @@ from config.db import get_db
 from fastapi import APIRouter, Depends, HTTPException, Path, Response
 
 from dtos.auth.user_dto import (
-    # CreateDTO,
-    # UserDTO,
-    Usuario
+    UsuarioDTO,
+    CreateUsuarioDTO
 )
 from dtos.general_dto import ResponseSchema, Role, TokenData
 from services.auth.user_service import UserService
@@ -17,8 +16,6 @@ from utils.auth import create_access_token, user_required, admin_required, any_a
 from utils.messages.auth import APP_MESSAGES
 
 router = APIRouter()
-ACCESS_TOKEN_EXPIRE_MINUTES = getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
-
 
 @router.post(
     path="/all", response_model=ResponseSchema, response_model_exclude_none=True
@@ -30,7 +27,7 @@ async def get_all(
 ):
     try:
         # Obtener todos los usuarios
-        data: List[Usuario] = await UserService.get_all(db)
+        data: List[UsuarioDTO] = await UserService.get_all(db)
 
         if data == "US9998":  # Mensaje de error
             raise HTTPException(
@@ -70,7 +67,7 @@ async def find_by_email(
 ):
     try:
         # Obtener usuario por email
-        data: Usuario = await UserService.find_by_email(db, email)
+        data: UsuarioDTO = await UserService.find_by_email(db, email)
 
         if data == "US9998":  # Mensaje de error
             raise HTTPException(**APP_MESSAGES["get_user_error"])
@@ -96,6 +93,63 @@ async def find_by_email(
             media_type="application/json",
         )
 
+
+@router.post(path="/admin", response_model=ResponseSchema, response_model_exclude_none=True)
+async def create_user(new_user: CreateUsuarioDTO, db: Session = Depends(get_db)):
+    try:
+        if new_user.id_rol == 3:
+            user_created: UsuarioDTO = await UserService.create(db, new_user)
+        else:
+            pass
+            # user_created: Usuario = await UserService.create_client(new_user)
+
+        if user_created == "US9999":  # Mensaje de error
+            raise HTTPException(**APP_MESSAGES["unexpected_error"])
+        elif user_created == "US0002":  # Si el dni ya existe
+            raise HTTPException(**APP_MESSAGES["dni_exists"])
+        elif user_created == "US0003":  # Si el email ya existe
+            raise HTTPException(**APP_MESSAGES["email_exists"])
+        elif user_created == "US0004":  # Si el dni no es válido
+            raise HTTPException(**APP_MESSAGES["invalid_dni"])
+
+        role = "Admin"
+        if user_created.id_rol == 3:
+            role = "User"
+
+        ACCESS_TOKEN_EXPIRE_MINUTES = getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+        
+        # Crear el token de acceso
+        access_token_expires = timedelta(
+            minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
+        access_token = create_access_token(
+            data={
+                "email": user_created.email,
+                "role": role,
+                "nombre": user_created.nombres,
+            },
+            expires_delta=access_token_expires,
+        )
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        return Response(
+            ResponseSchema(
+                detail=APP_MESSAGES["unexpected_error"]["detail"]
+            ).model_dump_json(),
+            status_code=APP_MESSAGES["unexpected_error"]["status_code"],
+            media_type="application/json",
+        )
+    else:
+        return Response(
+            ResponseSchema(
+                detail=APP_MESSAGES["successfully_created"]["detail"],
+                result=access_token,
+            ).model_dump_json(),
+            status_code=APP_MESSAGES["successfully_created"]["status_code"],
+            media_type="application/json",
+        )
 
 # @router.post(path="", response_model=ResponseSchema, response_model_exclude_none=True)
 # async def create_user(new_user: CreateDTO):

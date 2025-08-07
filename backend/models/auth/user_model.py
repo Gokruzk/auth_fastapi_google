@@ -6,7 +6,7 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey, String, Integer
+from sqlalchemy import ForeignKey, String, Integer, Date, DateTime
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -34,9 +34,10 @@ class UsuarioModel(Base):
     apellidos: Mapped[str] = mapped_column(String(50), nullable=False)
     celular: Mapped[str] = mapped_column(String(20), nullable=False)
     bool_status: Mapped[bool]
-    created_at: Mapped[date]
-    updated_at: Mapped[Optional[date]]
-    deleted_at: Mapped[Optional[date]]
+    created_at: Mapped[date] = mapped_column(Date, nullable=False)
+    updated_at: Mapped[date] = mapped_column(Date, nullable=True)
+    deleted_at: Mapped[date] = mapped_column(Date, nullable=True)
 
     id_rol: Mapped[int] = mapped_column(ForeignKey("rol_usuario.id_rol"))
+    contrasena: Mapped[str] = mapped_column(String(200), nullable=False)
     rol: Mapped["RolUsuarioModel"] = relationship(back_populates="usuarios")
