@@ -6,8 +6,6 @@ from config.db import get_db
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Response
 
-from models.user_model import Usuario as UsuarioSchema
-
 from dtos.auth.user_dto import (
     # CreateDTO,
     # UserDTO,
@@ -24,7 +22,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 @router.post(
     path="/all", response_model=ResponseSchema, response_model_exclude_none=True
-    # path="/all", response_model_exclude_none=True
 )
 async def get_all(
     # rol: int,
@@ -63,39 +60,41 @@ async def get_all(
         )
 
 
-# @router.get(
-#     path="/{email}", response_model=ResponseSchema, response_model_exclude_none=True
-# )
-# async def find_by_email(
-#     email: str = Path(..., alias="email"),
-#     token_data: TokenData = Depends(any_authenticated_user),
-# ):
-#     try:
-#         # Obtener usuario por email
-#         data: UserDTO = await UserService.find_by_email(email)
+@router.get(
+    path="/{email}", response_model=ResponseSchema, response_model_exclude_none=True
+)
+async def find_by_email(
+    email: str = Path(..., alias="email"),
+    # token_data: TokenData = Depends(any_authenticated_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        # Obtener usuario por email
+        data: Usuario = await UserService.find_by_email(db, email)
 
-#         if data == "US9998":  # Mensaje de error
-#             raise HTTPException(**APP_MESSAGES["get_user_error"])
-#         elif data == []:  # Si no existe el usuario
-#             raise HTTPException(**APP_MESSAGES["user_not_found"])
+        if data == "US9998":  # Mensaje de error
+            raise HTTPException(**APP_MESSAGES["get_user_error"])
+        elif data == []:  # Si no existe el usuario
+            raise HTTPException(**APP_MESSAGES["user_not_found"])
 
-#     except HTTPException as e:
-#         raise e
-#     except Exception as e:
-#         print(e)
-#         return Response(
-#             ResponseSchema(APP_MESSAGES["get_users_error"]).model_dump_json(),
-#             status_code=APP_MESSAGES["get_users_error"]["status_code"],
-#             media_type="application/json",
-#         )
-#     else:
-#         return Response(
-#             ResponseSchema(
-#                 detail=APP_MESSAGES["successfully_retrieved"]["detail"], result=data
-#             ).model_dump_json(),
-#             status_code=APP_MESSAGES["successfully_retrieved"]["status_code"],
-#             media_type="application/json",
-#         )
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        return Response(
+            ResponseSchema(
+                detail=APP_MESSAGES["get_users_error"]["detail"]).model_dump_json(),
+            status_code=APP_MESSAGES["get_users_error"]["status_code"],
+            media_type="application/json",
+        )
+    else:
+        return Response(
+            ResponseSchema(
+                detail=APP_MESSAGES["successfully_retrieved"]["detail"], result=data
+            ).model_dump_json(),
+            status_code=APP_MESSAGES["successfully_retrieved"]["status_code"],
+            media_type="application/json",
+        )
 
 
 # @router.post(path="", response_model=ResponseSchema, response_model_exclude_none=True)

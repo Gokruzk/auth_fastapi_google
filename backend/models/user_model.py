@@ -14,17 +14,17 @@ class Base(DeclarativeBase):
     pass
 
 
-class RolUsuario(Base):
+class RolUsuarioModel(Base):
     __tablename__ = "rol_usuario"
 
     id_rol: Mapped[int] = mapped_column(primary_key=True)
     rol: Mapped[str] = mapped_column(String(20), nullable=False)
 
     # Relación uno a muchos: un rol puede tener varios usuarios
-    usuarios: Mapped[List["Usuario"]] = relationship(back_populates="rol")
+    usuarios: Mapped[List["UsuarioModel"]] = relationship(back_populates="rol")
 
 
-class Usuario(Base):
+class UsuarioModel(Base):
     __tablename__ = "usuario"
 
     email: Mapped[str] = mapped_column(String(100), primary_key=True)
@@ -39,4 +39,4 @@ class Usuario(Base):
     deleted_at: Mapped[Optional[date]]
 
     id_rol: Mapped[int] = mapped_column(ForeignKey("rol_usuario.id_rol"))
-    rol: Mapped["RolUsuario"] = relationship(back_populates="usuarios")
+    rol: Mapped["RolUsuarioModel"] = relationship(back_populates="usuarios")
