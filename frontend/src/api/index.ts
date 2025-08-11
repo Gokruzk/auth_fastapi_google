@@ -15,7 +15,7 @@ export const authUser = async () => {
     } else {
       return { status: res.status, error: "F" };
     }
-  } catch (error: any) {
+  } catch (error) {
     console.log(error);
     return { status: 500, error: "F" };
   }
