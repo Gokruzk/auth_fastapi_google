@@ -1,3 +1,5 @@
+"use client"
+
 import { authUser } from "@/api";
 import { useEffect, useState } from "react";
 
