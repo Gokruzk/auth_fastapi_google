@@ -4,7 +4,7 @@ from colorama import Fore, Style
 
 from config.config import DBConfig
 
-SQLALCHEMY_DATABASE_URL = f"{DBConfig.DB_DIALECT()}://{DBConfig.DB_USER()}:{DBConfig.DB_PASSWORD()}@[{DBConfig.DB_HOST()}]:{DBConfig.DB_PORT()}/{DBConfig.DB_NAME()}"
+SQLALCHEMY_DATABASE_URL = f"{DBConfig.db_dialect()}://{DBConfig.db_user()}:{DBConfig.db_psw()}@[{DBConfig.db_host()}]:{DBConfig.db_port()}/{DBConfig.db_name()}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

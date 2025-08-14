@@ -24,7 +24,7 @@ class GoogleAuthService(AuthService):
                 'https://www.googleapis.com/auth/userinfo.email',
                 'https://www.googleapis.com/auth/userinfo.profile'
             ],
-            redirect_uri=f"{ServerConfig.REDIRECT_URI()}/api/v1/auth/callback"
+            redirect_uri=f"{ServerConfig.redirect_uri()}/api/v1/auth/callback"
         )
         return flow
 

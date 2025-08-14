@@ -36,17 +36,17 @@ class TokenManager:
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()
         expire = TimezoneUtils.now_for_database(
-        ) + (timedelta(minutes=JWTConfig.ACCESS_TOKEN_EXPIRE_MINUTES()))
+        ) + (timedelta(minutes=JWTConfig.token_expire()))
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(
-            to_encode, JWTConfig.SECRET_KEY(), algorithm=JWTConfig.ALGORITHM())
+            to_encode, JWTConfig.secret_key(), algorithm=JWTConfig.alogrithm())
         return encoded_jwt
 
     @staticmethod
     def verify_token(token: str = Depends(oauth2_scheme)) -> TokenData:
         try:
-            payload = jwt.decode(token, JWTConfig.SECRET_KEY(), algorithms=[
-                                 JWTConfig.ALGORITHM()])
+            payload = jwt.decode(token, JWTConfig.secret_key(), algorithms=[
+                                 JWTConfig.alogrithm()])
             email: str = payload.get("email")
             role: str = payload.get("role")
             id_usuario: int = payload.get("id_usuario")

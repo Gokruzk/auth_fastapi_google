@@ -92,7 +92,7 @@ async def auth_callback(request: Request, db: Session = Depends(get_db)):
     token_encoded = urllib.parse.quote(access_token)
 
     # Redirige a página que tiene el script para enviar token al frontend
-    redirect_url = f"{ServerConfig.REDIRECT_URI()}/api/v1/auth/callback/success/?token={token_encoded}"
+    redirect_url = f"{ServerConfig.redirect_uri()}/api/v1/auth/callback/success/?token={token_encoded}"
 
     return RedirectResponse(redirect_url)
 

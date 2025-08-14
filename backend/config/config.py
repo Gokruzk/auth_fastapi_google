@@ -6,45 +6,45 @@ load_dotenv()
 
 class ServerConfig:
     @staticmethod
-    def PORT() -> int | None:
+    def port() -> int | None:
         return int(getenv("PORT"))
 
     @staticmethod
-    def ENVIRONMENT() -> str | None:
+    def environment() -> str | None:
         return getenv("ENVIRONMENT")
-    
+
     @staticmethod
-    def REDIRECT_URI() -> str | None:
+    def redirect_uri() -> str | None:
         return getenv("REDIRECT_URI")
 
 
 class DBConfig():
     @staticmethod
-    def DB_NAME() -> str | None:
+    def db_name() -> str | None:
         return getenv("DB_NAME")
 
-    def DB_HOST() -> str | None:
+    def db_host() -> str | None:
         return getenv("DB_HOST")
-    
-    def DB_PORT() -> str | None:
+
+    def db_port() -> str | None:
         return getenv("DB_PORT")
 
-    def DB_DIALECT() -> str | None:
+    def db_dialect() -> str | None:
         return getenv("DB_DIALECT")
 
-    def DB_PASSWORD() -> str | None:
+    def db_psw() -> str | None:
         return getenv("DB_PASSWORD")
 
-    def DB_USER() -> str | None:
+    def db_user() -> str | None:
         return getenv("DB_USER")
 
 
 class JWTConfig():
-    def ALGORITHM() -> str | None:
+    def alogrithm() -> str | None:
         return getenv("ALGORITHM")
 
-    def SECRET_KEY() -> str | None:
+    def secret_key() -> str | None:
         return getenv("SECRET_KEY")
 
-    def ACCESS_TOKEN_EXPIRE_MINUTES() -> int | None:
+    def token_expire() -> int | None:
         return int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
