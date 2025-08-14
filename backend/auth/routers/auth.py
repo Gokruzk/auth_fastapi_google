@@ -1,20 +1,15 @@
 from fastapi import Query
 from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse, HTMLResponse
 import urllib.parse
 from sqlalchemy.orm import Session
-from config.db import get_db
-from config.config import ServerConfig
 
-from auth.dtos.user_dto import UsuarioDTO
-from auth.dtos.general_dto import Token
-from auth.services.user_service import UserService
-from auth.services.auth_service import GoogleAuthService
-from auth.utils.managers import PasswordManager, TokenManager
-from auth.utils.messages import APP_MESSAGES
+from config import get_db, ServerConfig
+from auth.dtos import UsuarioDTO, Token
+from auth.services import GoogleAuthService, UserService
+from auth.utils import APP_MESSAGES, PasswordManager, TokenManager
 
 router = APIRouter()
 

@@ -1,60 +1,6 @@
 from functools import wraps
 from typing import Callable
-
 from fastapi import HTTPException
-
-
-def validate_data(func):
-    """
-    Decorador para validar datos de entrada
-    """
-
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            # Aquí se pueden agregar validaciones específicas
-            return await func(*args, **kwargs)
-        except ValueError as e:
-            raise HTTPException(
-                status_code=400, detail=f"Datos inválidos: {str(e)}")
-
-    return wrapper
-
-
-def validate_date_logic(func):
-    """
-    Decorador para validar lógica de fechas en tracking
-    """
-
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        try:
-            return await func(*args, **kwargs)
-        except ValueError as e:
-            error_msg = str(e).lower()
-
-            if "fecha" in error_msg:
-                if "formato" in error_msg:
-                    raise HTTPException(
-                        status_code=400,
-                        detail="Formato de fecha inválido. Use YYYY-MM-DD",
-                    )
-                elif "futura" in error_msg:
-                    raise HTTPException(
-                        status_code=400,
-                        detail="No se pueden crear sesiones para fechas futuras",
-                    )
-                elif "pasada" in error_msg:
-                    raise HTTPException(
-                        status_code=400,
-                        detail="No se pueden modificar sesiones de fechas pasadas",
-                    )
-
-            raise HTTPException(
-                status_code=400, detail=f"Error de validación: {str(e)}"
-            )
-
-    return wrapper
 
 
 def clean_response_fields(fields_to_clean: list[str]):
@@ -95,8 +41,10 @@ def clean_response_fields(fields_to_clean: list[str]):
     return decorator
 
 
-# Decorador para eliminar atributos nulos
 def clean_fields(fields_to_clean: list[str]):
+    """
+    Decorador para limpiar campos específicos.
+    """
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):

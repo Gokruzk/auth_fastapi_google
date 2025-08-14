@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from fastapi import HTTPException
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
-from config.config import ServerConfig
+from config import ServerConfig
 
 
 class AuthService(ABC):

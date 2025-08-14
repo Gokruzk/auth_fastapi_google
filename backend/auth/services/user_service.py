@@ -5,8 +5,8 @@ from auth.dtos.user_dto import (
     UsuarioDTO,
     CreateUsuarioDTO
 )
-from auth.factory.user_factory import UserFactory
-from auth.repository.user_repository import UserRepository
+from auth.factory import UserFactory
+from auth.repository import UserRepository
 from auth.utils.decorators import clean_fields
 
 
