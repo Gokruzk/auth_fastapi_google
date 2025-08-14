@@ -5,9 +5,8 @@ from config.db import get_db
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Response
 
-from auth.dtos.user_dto import UsuarioDTO, CreateUsuarioDTO
-from auth.dtos.general_dto import ResponseSchema, TokenData
-from auth.services.user_service import UserService
+from auth.dtos import UsuarioDTO, CreateUsuarioDTO, ResponseSchema, TokenData
+from auth.services import UserService
 from auth.utils.managers import TokenManager, SessionManager
 from auth.utils.messages import APP_MESSAGES
 
@@ -23,9 +22,9 @@ async def get_all(
     db: Session = Depends(get_db)
 ):
     try:
-        service = UserService()
+        service = UserService(db)
         # Obtener todos los usuarios
-        data: List[UsuarioDTO] = await service.get_all(db)
+        data: List[UsuarioDTO] = await service.get_all()
 
         if data == "US9998":  # Mensaje de error
             raise HTTPException(
@@ -64,9 +63,9 @@ async def find_by_email(
     db: Session = Depends(get_db)
 ):
     try:
-        service = UserService()
+        service = UserService(db)
         # Obtener usuario por email
-        data: UsuarioDTO = await service.find_by_email(db, email)
+        data: UsuarioDTO = await service.find_by_email(email)
 
         if data == "US9998":  # Mensaje de error
             raise HTTPException(**APP_MESSAGES["get_user_error"])
@@ -96,9 +95,9 @@ async def find_by_email(
 @router.post(path="/admin", response_model=ResponseSchema, response_model_exclude_none=True)
 async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depends(SessionManager.admin_required), db: Session = Depends(get_db)):
     try:
-        service = UserService()
+        service = UserService(db)
         if new_user.id_rol == 3:
-            user_created: UsuarioDTO = await service.create(db, new_user)
+            user_created: UsuarioDTO = await service.create(new_user)
         else:
             pass
             # user_created: Usuario = await UserService.create_client(new_user)

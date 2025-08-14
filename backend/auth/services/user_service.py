@@ -15,8 +15,8 @@ class UserService:
         self.repository = UserRepository(db)
 
     @clean_fields(['contrasena'])
-    async def get_all(self, db: Session) -> List[UsuarioDTO]:
-        users = await self.repository.get_all(db)
+    async def get_all(self) -> List[UsuarioDTO]:
+        users = await self.repository.get_all()
 
         # Serialize sqlalchemy model to pydantic schema
         users = [

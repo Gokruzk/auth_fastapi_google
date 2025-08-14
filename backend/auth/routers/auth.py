@@ -22,7 +22,8 @@ async def auth(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db)
 ):
-    user_data: UsuarioDTO = await UserService.find_by_email(db, form_data.username)
+    service = UserService(db)
+    user_data: UsuarioDTO = await service.find_by_email(email=form_data.username)
     # Determinar el objeto del usuario autenticado
     authenticated_user = None
 
