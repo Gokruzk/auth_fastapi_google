@@ -1,33 +1,31 @@
 from datetime import timedelta
-from os import getenv
 from typing import List
 from sqlalchemy.orm import Session
 from config.db import get_db
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Response
 
-from dtos.auth.user_dto import (
-    UsuarioDTO,
-    CreateUsuarioDTO
-)
-from dtos.general_dto import ResponseSchema, Role, TokenData
-from services.auth.user_service import UserService
-from utils.auth import create_access_token, user_required, admin_required, any_authenticated_user
-from utils.messages.auth import APP_MESSAGES
+from auth.dtos.user_dto import UsuarioDTO, CreateUsuarioDTO
+from auth.dtos.general_dto import ResponseSchema, TokenData
+from auth.services.user_service import UserService
+from auth.utils.managers import TokenManager, SessionManager
+from auth.utils.messages import APP_MESSAGES
 
 router = APIRouter()
+
 
 @router.post(
     path="/all", response_model=ResponseSchema, response_model_exclude_none=True
 )
 async def get_all(
     # rol: int,
-    # token_data: TokenData = Depends(any_authenticated_user),
+    token_data: TokenData = Depends(SessionManager.any_authenticated_user),
     db: Session = Depends(get_db)
 ):
     try:
+        service = UserService()
         # Obtener todos los usuarios
-        data: List[UsuarioDTO] = await UserService.get_all(db)
+        data: List[UsuarioDTO] = await service.get_all(db)
 
         if data == "US9998":  # Mensaje de error
             raise HTTPException(
@@ -62,12 +60,13 @@ async def get_all(
 )
 async def find_by_email(
     email: str = Path(..., alias="email"),
-    # token_data: TokenData = Depends(any_authenticated_user),
+    token_data: TokenData = Depends(SessionManager.any_authenticated_user),
     db: Session = Depends(get_db)
 ):
     try:
+        service = UserService()
         # Obtener usuario por email
-        data: UsuarioDTO = await UserService.find_by_email(db, email)
+        data: UsuarioDTO = await service.find_by_email(db, email)
 
         if data == "US9998":  # Mensaje de error
             raise HTTPException(**APP_MESSAGES["get_user_error"])
@@ -95,10 +94,11 @@ async def find_by_email(
 
 
 @router.post(path="/admin", response_model=ResponseSchema, response_model_exclude_none=True)
-async def create_user(new_user: CreateUsuarioDTO, db: Session = Depends(get_db)):
+async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depends(SessionManager.admin_required), db: Session = Depends(get_db)):
     try:
+        service = UserService()
         if new_user.id_rol == 3:
-            user_created: UsuarioDTO = await UserService.create(db, new_user)
+            user_created: UsuarioDTO = await service.create(db, new_user)
         else:
             pass
             # user_created: Usuario = await UserService.create_client(new_user)
@@ -116,18 +116,13 @@ async def create_user(new_user: CreateUsuarioDTO, db: Session = Depends(get_db))
         if user_created.id_rol == 3:
             role = "User"
 
-        ACCESS_TOKEN_EXPIRE_MINUTES = getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
-        
         # Crear el token de acceso
-        access_token_expires = timedelta(
-            minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
-        access_token = create_access_token(
+        access_token = TokenManager.create_access_token(
             data={
                 "email": user_created.email,
                 "role": role,
                 "nombre": user_created.nombres,
             },
-            expires_delta=access_token_expires,
         )
 
     except HTTPException as e:
@@ -150,62 +145,3 @@ async def create_user(new_user: CreateUsuarioDTO, db: Session = Depends(get_db))
             status_code=APP_MESSAGES["successfully_created"]["status_code"],
             media_type="application/json",
         )
-
-# @router.post(path="", response_model=ResponseSchema, response_model_exclude_none=True)
-# async def create_user(new_user: CreateDTO):
-#     try:
-#         if new_user.id_rol == 2:
-#             user_created: UserDTO = await UserService.create_client(new_user)
-#         else:
-#             user_created: UserDTO = await UserService.create(new_user)
-
-#         if user_created == "US9999":  # Mensaje de error
-#             raise HTTPException(**APP_MESSAGES["unexpected_error"])
-#         elif user_created == "US0002":  # Si el username ya existe
-#             raise HTTPException(**APP_MESSAGES["username_exists"])
-#         elif user_created == "US0003":  # Si el dni ya existe
-#             raise HTTPException(**APP_MESSAGES["dni_exists"])
-#         elif user_created == "US0004":  # Si el email ya existe
-#             raise HTTPException(**APP_MESSAGES["email_exists"])
-#         elif user_created == "US0005":  # Si el dni no es válido
-#             raise HTTPException(**APP_MESSAGES["invalid_dni"])
-
-#         role = "Admin"
-#         if user_created.id_rol == 2:
-#             role = "Client"
-#         elif user_created.id_rol == 3:
-#             role = "Coach"
-
-#         # Crear el token de acceso
-#         access_token_expires = timedelta(
-#             minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
-#         access_token = create_access_token(
-#             data={
-#                 "email": user_created.email,
-#                 "role": role,
-#                 "id_usuario": user_created.id_usuario,
-#                 "nombre": user_created.nombre,
-#             },
-#             expires_delta=access_token_expires,
-#         )
-
-#     except HTTPException as e:
-#         raise e
-#     except Exception as e:
-#         print(e)
-#         return Response(
-#             ResponseSchema(
-#                 detail=APP_MESSAGES["unexpected_error"]["detail"]
-#             ).model_dump_json(),
-#             status_code=APP_MESSAGES["unexpected_error"]["status_code"],
-#             media_type="application/json",
-#         )
-#     else:
-#         return Response(
-#             ResponseSchema(
-#                 detail=APP_MESSAGES["successfully_created"]["detail"],
-#                 result=access_token,
-#             ).model_dump_json(),
-#             status_code=APP_MESSAGES["successfully_created"]["status_code"],
-#             media_type="application/json",
-#         )

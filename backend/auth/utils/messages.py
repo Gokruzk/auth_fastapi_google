@@ -129,59 +129,6 @@ APP_MESSAGES = {
         "status_code": status.HTTP_200_OK,
         "detail": "La contraseña se actualizó correctamente",
     },
-    "membership_type_created": {
-        "status_code": status.HTTP_201_CREATED,
-        "detail": "Tipo de membresía creado exitosamente",
-    },
-    "membership_type_updated": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Tipo de membresía actualizado exitosamente",
-    },
-    "membership_type_deleted": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Tipo de membresía eliminado exitosamente",
-    },
-    "membership_type_name_exists": {
-        "status_code": status.HTTP_409_CONFLICT,
-        "detail": "Ya existe un tipo de membresía con este nombre",
-    },
-    "membership_type_not_found": {
-        "status_code": status.HTTP_404_NOT_FOUND,
-        "detail": "Tipo de membresía no encontrado",
-    },
-    "membership_type_in_use": {
-        "status_code": status.HTTP_409_CONFLICT,
-        "detail": "No se puede eliminar el tipo de membresía porque está en uso",
-    },
-    "invalid_duration": {
-        "status_code": status.HTTP_400_BAD_REQUEST,
-        "detail": "La duración debe ser mayor a 0 días",
-    },
-    "no_membership_types_found": {
-        "status_code": status.HTTP_404_NOT_FOUND,
-        "detail": "No se encontraron tipos de membresía",
-    },
-    # Mensajes para membresías de clientes
-    "membership_assigned": {
-        "status_code": status.HTTP_201_CREATED,
-        "detail": "Membresía asignada exitosamente",
-    },
-    "membership_extended": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Membresía extendida exitosamente",
-    },
-    "membership_activated": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Membresía activada exitosamente",
-    },
-    "membership_deactivated": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Membresía desactivada exitosamente",
-    },
-    "membership_deleted": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Membresía eliminada exitosamente",
-    },
     "client_not_found": {
         "status_code": status.HTTP_404_NOT_FOUND,
         "detail": "Cliente no encontrado",
@@ -190,42 +137,29 @@ APP_MESSAGES = {
         "status_code": status.HTTP_400_BAD_REQUEST,
         "detail": "El usuario no es un cliente",
     },
-    "no_active_membership": {
-        "status_code": status.HTTP_404_NOT_FOUND,
-        "detail": "El cliente no tiene membresía activa",
+    # Mensajes de autenticación y autorización
+    "unauthorized": {
+        "status_code": status.HTTP_401_UNAUTHORIZED,
+        "detail": "No autorizado",
     },
-    "membership_not_found": {
-        "status_code": status.HTTP_404_NOT_FOUND,
-        "detail": "Membresía no encontrada",
+    "forbidden": {
+        "status_code": status.HTTP_403_FORBIDDEN,
+        "detail": "Acceso denegado",
     },
-    "no_memberships_found": {
-        "status_code": status.HTTP_404_NOT_FOUND,
-        "detail": "No se encontraron membresías",
+    "invalid_token": {
+        "status_code": status.HTTP_401_UNAUTHORIZED,
+        "detail": "Token inválido",
     },
-    # Mensajes de validación
-    "membership_valid": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Membresía válida y activa",
+    "token_expired": {
+        "status_code": status.HTTP_401_UNAUTHORIZED,
+        "detail": "Token expirado",
     },
-    "membership_expired": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Membresía vencida",
+    "invalid_role": {
+        "status_code": status.HTTP_403_FORBIDDEN,
+        "detail": "No es un usuario válido del sistema",
     },
-    "membership_expiring_soon": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Membresía próxima a vencer",
-    },
-    # Mensajes de estadísticas
-    "stats_retrieved": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Estadísticas obtenidas exitosamente",
-    },
-    "notifications_retrieved": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Notificaciones de vencimiento obtenidas exitosamente",
-    },
-    "expired_check_completed": {
-        "status_code": status.HTTP_200_OK,
-        "detail": "Verificación de membresías vencidas completada",
+    "admin_required": {
+        "status_code": status.HTTP_403_FORBIDDEN,
+        "detail": "Se requieren permisos de administrador",
     },
 }

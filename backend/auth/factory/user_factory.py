@@ -1,17 +1,16 @@
 from datetime import datetime
 
-from dtos.auth.user_dto import (
-    UsuarioDTO,
+from auth.dtos.user_dto import (
     CreateUsuarioDTO
 )
-from models.auth.user_model import UsuarioModel
+from auth.models.user_model import UsuarioModel
 
-from utils.auth import get_password_hash
+from auth.utils.managers import PasswordManager
 
 
 class UserFactory:
     @staticmethod
-    def create_user_from_create_dto(data: CreateUsuarioDTO):
+    def create_user_from_create_dto(data: CreateUsuarioDTO) -> UsuarioModel:
 
         return UsuarioModel(
             email=data.email,
@@ -21,7 +20,7 @@ class UserFactory:
             apellidos=data.apellidos,
             celular=data.celular,
             bool_status=data.bool_status,
-            contrasena=get_password_hash(data.contrasena),
+            contrasena=PasswordManager.hash_password(data.contrasena),
             created_at=datetime.now(),
             updated_at=None,
             deleted_at=None

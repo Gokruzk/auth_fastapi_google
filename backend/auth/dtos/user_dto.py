@@ -25,7 +25,7 @@ class UsuarioDTO(BaseDTO):
     created_at: datetime
     updated_at: Optional[date]
     deleted_at: Optional[date]
-    
+    rol: RolUsuarioDTO
     id_rol: int
 
 class CreateUsuarioDTO(BaseDTO):

@@ -2,14 +2,9 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 from colorama import Fore, Style
 
-import os
+from config.config import DBConfig
 
-DB_NAME = os.getenv("DB_NAME")
-DB_HOST = os.getenv("DB_HOST")
-DB_DIALECT = os.getenv("DB_DIALECT")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_USER = os.getenv("DB_USER")
-SQLALCHEMY_DATABASE_URL = f"{DB_DIALECT}://{DB_USER}:{DB_PASSWORD}@[{DB_HOST}]:5432/{DB_NAME}"
+SQLALCHEMY_DATABASE_URL = f"{DBConfig.DB_DIALECT()}://{DBConfig.DB_USER()}:{DBConfig.DB_PASSWORD()}@[{DBConfig.DB_HOST()}]:{DBConfig.DB_PORT()}/{DBConfig.DB_NAME()}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -17,8 +12,10 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
-# Dependency
 def get_db():
+    """
+    Dependencia para crear una sesión para cada operación
+    """
     db = SessionLocal()
 
     try:
@@ -28,8 +25,11 @@ def get_db():
 
 
 def test_db_connection():
+    """
+    Hace un select a la base de datos para comprobar su estado
+    """
     try:
-        # Intenta crear una sesión
+        # Crea una sesión
         db = SessionLocal()
         # Ejecuta una consulta simple para probar la conexión
         db.execute(text("SELECT 1"))
