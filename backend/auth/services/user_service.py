@@ -1,17 +1,14 @@
 from typing import List
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from auth.dtos.user_dto import (
-    UsuarioDTO,
-    CreateUsuarioDTO
-)
+from auth.dtos import UsuarioDTO, RUsuarioDTO, CreateUsuarioDTO
 from auth.factory import UserFactory
 from auth.repository import UserRepository
 from auth.utils.decorators import clean_fields
 
 
 class UserService:
-    def __init__(self, db: Session):
+    def __init__(self, db: AsyncSession):
         self.repository = UserRepository(db)
 
     @clean_fields(['contrasena'])
@@ -24,14 +21,14 @@ class UserService:
 
         return users
 
-    async def find_by_email(self, email: str) -> UsuarioDTO:
+    async def find_by_email(self, email: str) -> RUsuarioDTO:
         user = await self.repository.find_by_email(email)
 
         if user is None:
             return []
-
+        print(user)
         # Serialize sqlalchemy model to pydantic schema
-        user = UsuarioDTO.model_validate(user)
+        user = RUsuarioDTO.model_validate(user)
 
         return user
 

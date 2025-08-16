@@ -1,4 +1,4 @@
-from .db import get_db
+from .db import get_session, test_db_connection
 from .config import ServerConfig
 
-__all__ = ["get_db", "ServerConfig"]
+__all__ = ["get_session", "ServerConfig", "test_db_connection"]

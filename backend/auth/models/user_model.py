@@ -21,7 +21,7 @@ class RolUsuarioModel(Base):
     rol: Mapped[str] = mapped_column(String(20), nullable=False)
 
     # Relación uno a muchos: un rol puede tener varios usuarios
-    usuarios: Mapped[List["UsuarioModel"]] = relationship(back_populates="rol")
+    usuario: Mapped[List["UsuarioModel"]] = relationship(back_populates="rol")
 
 
 class UsuarioModel(Base):
@@ -40,4 +40,4 @@ class UsuarioModel(Base):
 
     id_rol: Mapped[int] = mapped_column(ForeignKey("rol_usuario.id_rol"))
     contrasena: Mapped[str] = mapped_column(String(200), nullable=False)
-    rol: Mapped["RolUsuarioModel"] = relationship(back_populates="usuarios")
+    rol: Mapped["RolUsuarioModel"] = relationship(back_populates="usuario")

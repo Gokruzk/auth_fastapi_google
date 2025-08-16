@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import List
-from sqlalchemy.orm import Session
-from config.db import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from config import get_session
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Response
 
@@ -18,9 +18,9 @@ router = APIRouter()
 )
 async def get_all(
     # rol: int,
-    token_data: TokenData = Depends(
-        SessionManager.rol_checker([Role.admin.value, Role.user.value])),
-    db: Session = Depends(get_db)
+    # token_data: TokenData = Depends(
+    #     SessionManager.rol_checker([Role.admin.value, Role.user.value])),
+    db: AsyncSession = Depends(get_session)
 ):
     try:
         service = UserService(db)
@@ -62,7 +62,7 @@ async def find_by_email(
     email: str = Path(..., alias="email"),
     token_data: TokenData = Depends(
         SessionManager.rol_checker([Role.admin.value, Role.user.value])),
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_session)
 ):
     try:
         service = UserService(db)
@@ -95,7 +95,7 @@ async def find_by_email(
 
 
 @router.post(path="/admin", response_model=ResponseSchema, response_model_exclude_none=True)
-async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depends(SessionManager.rol_checker([Role.admin.value])), db: Session = Depends(get_db)):
+async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depends(SessionManager.rol_checker([Role.admin.value])), db: AsyncSession = Depends(get_session)):
     try:
         service = UserService(db)
         if new_user.id_rol == 3:

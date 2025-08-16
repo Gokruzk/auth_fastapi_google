@@ -1,12 +1,11 @@
 from contextlib import asynccontextmanager
-import os
 import uvicorn
 from colorama import Fore, Style
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.middleware.cors import CORSMiddleware
-from config.db import test_db_connection
-from config.config import ServerConfig
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from config import test_db_connection, ServerConfig
 
 from auth.routers import user, auth
 
@@ -15,7 +14,7 @@ def create_app():
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         try:
-            test_db_connection()
+            await test_db_connection()
             print(
                 f"\n{Fore.GREEN}{Style.BRIGHT}🚀Server started on port {ServerConfig.port()}\n"
             )
@@ -47,6 +46,11 @@ def create_app():
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+    )
+
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=["localhost", "127.0.0.1"]
     )
 
     return app

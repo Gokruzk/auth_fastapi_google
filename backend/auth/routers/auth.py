@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse, HTMLResponse
 import urllib.parse
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from config import get_db, ServerConfig
+from config import get_session, ServerConfig
 from auth.dtos import UsuarioDTO, Token
 from auth.services import GoogleAuthService, UserService
 from auth.utils import APP_MESSAGES, PasswordManager, TokenManager
@@ -20,7 +20,7 @@ router = APIRouter()
 )
 async def auth(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    db: Session = Depends(get_db)
+    db: AsyncSession = Depends(get_session)
 ):
     service = UserService(db)
     user_data: UsuarioDTO = await service.find_by_email(email=form_data.username)
@@ -70,11 +70,11 @@ def login_google():
 
 
 @router.get("/callback")
-async def auth_callback(request: Request, db: Session = Depends(get_db)):
+async def auth_callback(request: Request, db: AsyncSession = Depends(get_session)):
 
     # Autenticar con google
-    auth_service = GoogleAuthService()
-    user_info = auth_service.autenticar(str(request.url))
+    service = GoogleAuthService()
+    user_info = service.autenticar(str(request.url))
 
     # Crear el token de acceso
     access_token = TokenManager.create_access_token(
