@@ -1,5 +1,5 @@
 from .user_dto import UsuarioDTO, CreateUsuarioDTO
-from .general_dto import ResponseSchema, Token, TokenData
+from .general_dto import ResponseSchema, Token, TokenData, Role
 
 __all__ = ["UsuarioDTO", "CreateUsuarioDTO",
-           "ResponseSchema", "Token", "TokenData"]
+           "ResponseSchema", "Role", "Token", "TokenData"]

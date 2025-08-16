@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
-from typing import Annotated
+from typing import Annotated, List
 
 import jwt
 from fastapi import Depends, HTTPException, Response, status
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
-from auth.dtos.general_dto import ResponseSchema, Role, TokenData
+from auth.dtos.general_dto import ResponseSchema, TokenData
 from auth.utils.messages import APP_MESSAGES
 from auth.utils.timezone_utils import TimezoneUtils
 from config.config import JWTConfig
@@ -94,19 +94,9 @@ class SessionManager:
             )
 
     @staticmethod
-    def user_required(token_data: TokenData = Depends(TokenManager.verify_token)) -> TokenData:
-        if token_data.role != Role.user.value:
-            raise HTTPException(**APP_MESSAGES["forbidden"])
-        return token_data
-
-    @staticmethod
-    def admin_required(token_data: TokenData = Depends(TokenManager.verify_token)) -> TokenData:
-        if token_data.role != Role.admin.value:
-            raise HTTPException(**APP_MESSAGES["forbidden"])
-        return token_data
-
-    @staticmethod
-    def any_authenticated_user(token_data: TokenData = Depends(TokenManager.verify_token)) -> TokenData:
-        if token_data.role not in [Role.admin.value, Role.user.value]:
-            raise HTTPException(**APP_MESSAGES["invalid_role"])
-        return token_data
+    def rol_checker(allowed_roles: List["str"]):
+        def checker(token_data: TokenData = Depends(TokenManager.verify_token)) -> TokenData:
+            if token_data.role not in allowed_roles:
+                raise HTTPException(**APP_MESSAGES["forbidden"])
+            return token_data
+        return checker

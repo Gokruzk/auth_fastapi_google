@@ -5,7 +5,7 @@ from config.db import get_db
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Response
 
-from auth.dtos import UsuarioDTO, CreateUsuarioDTO, ResponseSchema, TokenData
+from auth.dtos import UsuarioDTO, CreateUsuarioDTO, ResponseSchema, TokenData, Role
 from auth.services import UserService
 from auth.utils.managers import TokenManager, SessionManager
 from auth.utils.messages import APP_MESSAGES
@@ -18,7 +18,8 @@ router = APIRouter()
 )
 async def get_all(
     # rol: int,
-    token_data: TokenData = Depends(SessionManager.any_authenticated_user),
+    token_data: TokenData = Depends(
+        SessionManager.rol_checker([Role.admin.value, Role.user.value])),
     db: Session = Depends(get_db)
 ):
     try:
@@ -59,7 +60,8 @@ async def get_all(
 )
 async def find_by_email(
     email: str = Path(..., alias="email"),
-    token_data: TokenData = Depends(SessionManager.any_authenticated_user),
+    token_data: TokenData = Depends(
+        SessionManager.rol_checker([Role.admin.value, Role.user.value])),
     db: Session = Depends(get_db)
 ):
     try:
@@ -93,7 +95,7 @@ async def find_by_email(
 
 
 @router.post(path="/admin", response_model=ResponseSchema, response_model_exclude_none=True)
-async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depends(SessionManager.admin_required), db: Session = Depends(get_db)):
+async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depends(SessionManager.rol_checker([Role.admin.value])), db: Session = Depends(get_db)):
     try:
         service = UserService(db)
         if new_user.id_rol == 3:
