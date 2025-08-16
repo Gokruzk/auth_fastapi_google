@@ -18,10 +18,18 @@ router = APIRouter()
 )
 async def get_all(
     # rol: int,
-    # token_data: TokenData = Depends(
-    #     SessionManager.rol_checker([Role.admin.value, Role.user.value])),
+    token_data: TokenData = Depends(
+        SessionManager.rol_checker([Role.admin.value, Role.user.value])),
     db: AsyncSession = Depends(get_session)
 ):
+    """
+    Gell all the users.
+
+    :param rol: User's rol to search.
+    :type rol: int
+    :return: A dictionary with a detail message and the users data.
+    :rtype: dict[str, Any] with keys {"detail": str, "result": List[UsuarioDTO]}
+    """
     try:
         service = UserService(db)
         # Obtener todos los usuarios
@@ -64,6 +72,14 @@ async def find_by_email(
         SessionManager.rol_checker([Role.admin.value, Role.user.value])),
     db: AsyncSession = Depends(get_session)
 ):
+    """
+    Search a user by email.
+
+    :param email: User's email address to search.
+    :type email: str
+    :return: A dictionary with a detail message and the user data.
+    :rtype: dict[str, Any] with keys {"detail": str, "result": UsuarioDTO}
+    """
     try:
         service = UserService(db)
         # Obtener usuario por email
@@ -96,6 +112,14 @@ async def find_by_email(
 
 @router.post(path="/admin", response_model=ResponseSchema, response_model_exclude_none=True)
 async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depends(SessionManager.rol_checker([Role.admin.value])), db: AsyncSession = Depends(get_session)):
+    """
+    Create a user by an admin account
+
+    :param new_user: User's info
+    :type new_user: CreateUsuarioDTO
+    :return: A dictionary with a detail message and the access token.
+    :rtype: dict[str, Any] with keys {"detail": str, "result": str}
+    """
     try:
         service = UserService(db)
         if new_user.id_rol == 3:

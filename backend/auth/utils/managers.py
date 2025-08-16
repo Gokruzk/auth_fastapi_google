@@ -35,11 +35,15 @@ class TokenManager:
     @staticmethod
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()
+
         expire = TimezoneUtils.now_for_database(
         ) + (timedelta(minutes=JWTConfig.token_expire()))
+
         to_encode.update({"exp": expire})
+
         encoded_jwt = jwt.encode(
             to_encode, JWTConfig.secret_key(), algorithm=JWTConfig.alogrithm())
+
         return encoded_jwt
 
     @staticmethod
@@ -94,7 +98,7 @@ class SessionManager:
             )
 
     @staticmethod
-    def rol_checker(allowed_roles: List["str"]):
+    def rol_checker(allowed_roles: List[str]):
         def checker(token_data: TokenData = Depends(TokenManager.verify_token)) -> TokenData:
             if token_data.role not in allowed_roles:
                 raise HTTPException(**APP_MESSAGES["forbidden"])

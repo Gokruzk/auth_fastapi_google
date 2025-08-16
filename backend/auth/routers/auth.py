@@ -22,6 +22,14 @@ async def auth(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: AsyncSession = Depends(get_session)
 ):
+    """
+    Auth a user.
+
+    :param form_data: User's credentials.
+    :type form_data: dict[str, Any] with keys {"username": str, "password": str}
+    :return: A dictionary with an access token and token type.
+    :rtype: dict[str, Any] with keys {"access_token": str, "token_type": str}
+    """
     service = UserService(db)
     user_data: UsuarioDTO = await service.find_by_email(email=form_data.username)
     # Determinar el objeto del usuario autenticado
@@ -60,6 +68,11 @@ async def auth(
 
 @router.get("/login/google")
 def login_google():
+    """
+    Auth a user by google.
+
+    :redirect: A url to auth.
+    """
     auth_service = GoogleAuthService()
     authorization_url, state = auth_service.clients_secrets_file().authorization_url(
         access_type='offline',
@@ -71,7 +84,13 @@ def login_google():
 
 @router.get("/callback")
 async def auth_callback(request: Request, db: AsyncSession = Depends(get_session)):
+    """
+    Create token with user info from Google.
 
+    :param request: Request from /login/google
+    :type request: Request
+    :redirect: A web page to pass the token
+    """
     # Autenticar con google
     service = GoogleAuthService()
     user_info = service.autenticar(str(request.url))
@@ -95,11 +114,16 @@ async def auth_callback(request: Request, db: AsyncSession = Depends(get_session
 
 @router.get("/callback/success", response_class=HTMLResponse)
 async def auth_success(token: str = Query(...)):
+    """
+    Send token to frontend.
+
+    :param token: Request from /callback
+    :type token: str
+    """
     return f"""
     <html>
       <body>
         <script>
-          // Origen de tu frontend
           const FRONTEND_ORIGIN = "http://localhost:3000";
           window.opener.postMessage({{ token: "{token}" }}, FRONTEND_ORIGIN);
           window.close();
