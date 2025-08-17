@@ -1,4 +1,5 @@
-from .db import get_session, test_db_connection
-from .config import ServerConfig
+from .db import get_session, test_db_connection, AsyncSessionLocal
+from .config import ServerConfig, JWTConfig
 
-__all__ = ["get_session", "ServerConfig", "test_db_connection"]
+__all__ = ["AsyncSessionLocal", "get_session",
+           "JWTConfig", "ServerConfig", "test_db_connection"]

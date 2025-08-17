@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import date, datetime
 
 
@@ -15,7 +15,7 @@ class RolUsuarioDTO(BaseDTO):
 
 
 class UsuarioDTO(BaseDTO):
-    email: str
+    email: EmailStr
     cedula: str
     nombres: str
     apellidos: str
@@ -27,8 +27,10 @@ class UsuarioDTO(BaseDTO):
     deleted_at: Optional[date]
     id_rol: int
 
+
 class RUsuarioDTO(UsuarioDTO):
     rol: RolUsuarioDTO
+
 
 class CreateUsuarioDTO(BaseDTO):
     email: str

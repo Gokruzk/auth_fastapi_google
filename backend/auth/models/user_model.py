@@ -1,16 +1,17 @@
-from datetime import datetime, date
+from datetime import date
 from typing import List
 from sqlalchemy import ForeignKey
 from sqlalchemy import String
+from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey, String, Integer, Date, DateTime
+from sqlalchemy import ForeignKey, String, Date
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
-class Base(DeclarativeBase):
+class Base(AsyncAttrs, DeclarativeBase):
     pass
 
 
@@ -29,7 +30,7 @@ class UsuarioModel(Base):
 
     email: Mapped[str] = mapped_column(String(100), primary_key=True)
     cedula: Mapped[str] = mapped_column(
-        String(10), nullable=False)  # asumimos que cedula es el PK
+        String(10), nullable=False)
     nombres: Mapped[str] = mapped_column(String(50), nullable=False)
     apellidos: Mapped[str] = mapped_column(String(50), nullable=False)
     celular: Mapped[str] = mapped_column(String(20), nullable=False)

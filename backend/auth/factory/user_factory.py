@@ -1,11 +1,9 @@
 from datetime import datetime
 
-from auth.dtos.user_dto import (
-    CreateUsuarioDTO
-)
-from auth.models.user_model import UsuarioModel
+from auth.dtos import CreateUsuarioDTO
+from auth.models import UsuarioModel
 
-from auth.utils.managers import PasswordManager
+from auth.utils import PasswordManager
 
 
 class UserFactory:

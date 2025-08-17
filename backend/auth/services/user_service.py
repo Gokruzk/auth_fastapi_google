@@ -41,12 +41,13 @@ class UserService:
             if user_retrieved_email != []:
                 return "US0003"  # Código de error para `email` duplicado
 
-            # Crear la entidad para insertar
+            # Create entity to insert in db
             user_data = UserFactory.create_user_from_create_dto(data)
 
-            # Ejecutar la inserción en la base de datos
+            # Insert data in db
             user_post = await self.repository.create_user(user_data)
 
+            # Validate model to return
             user_post = UsuarioDTO.model_validate(user_post)
 
         except Exception as e:

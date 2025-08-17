@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from config import test_db_connection, ServerConfig
 
+from auth.middleware import LoggingMiddleware
 from auth.routers import user, auth
 
 
@@ -16,14 +17,14 @@ def create_app():
         try:
             await test_db_connection()
             print(
-                f"\n{Fore.GREEN}{Style.BRIGHT}🚀Server started on port {ServerConfig.port()}\n"
+                f"\n{Fore.GREEN}{Style.BRIGHT}Server started on port {ServerConfig.port()}\n"
             )
             yield
         except Exception as e:
-            print(f"\n{Fore.RED}❌ Error: {str(e)}\n")
+            print(f"\n{Fore.RED}Error: {str(e)}\n")
         finally:
             print(
-                f"\n{Fore.YELLOW}{Style.BRIGHT}🛑Server Shutdown\n")
+                f"\n{Fore.YELLOW}{Style.BRIGHT}Server Shutdown\n")
 
     # Configuración condicional para documentación
     docs_url = "/docs" if ServerConfig.environment() == "development" else None
@@ -40,6 +41,7 @@ def create_app():
         openapi_url=openapi_url,
     )
 
+    
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:3000/", "*"],
@@ -52,6 +54,8 @@ def create_app():
         TrustedHostMiddleware,
         allowed_hosts=["localhost", "127.0.0.1"]
     )
+
+    app.add_middleware(LoggingMiddleware)
 
     return app
 

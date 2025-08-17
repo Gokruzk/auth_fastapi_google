@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 from auth.dtos.general_dto import ResponseSchema, TokenData
 from auth.utils.messages import APP_MESSAGES
 from auth.utils.timezone_utils import TimezoneUtils
-from config.config import JWTConfig
+from config import JWTConfig
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -35,22 +35,34 @@ class TokenManager:
     @staticmethod
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()
-
         expire = TimezoneUtils.now_for_database(
-        ) + (timedelta(minutes=JWTConfig.token_expire()))
-
+        ) + timedelta(minutes=JWTConfig.token_expire())
         to_encode.update({"exp": expire})
 
         encoded_jwt = jwt.encode(
-            to_encode, JWTConfig.secret_key(), algorithm=JWTConfig.alogrithm())
-
+            to_encode,
+            JWTConfig.secret_key(),
+            algorithm=JWTConfig.alogrithm()
+        )
         return encoded_jwt
 
     @staticmethod
-    def verify_token(token: str = Depends(oauth2_scheme)) -> TokenData:
+    def decode_token(token: str) -> dict:
         try:
-            payload = jwt.decode(token, JWTConfig.secret_key(), algorithms=[
-                                 JWTConfig.alogrithm()])
+            return jwt.decode(
+                token,
+                JWTConfig.secret_key(),
+                algorithms=[JWTConfig.alogrithm()]
+            )
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(**APP_MESSAGES["token_expired"])
+        except jwt.InvalidTokenError:
+            raise HTTPException(**APP_MESSAGES["invalid_token"])
+
+    @classmethod
+    def verify_token(cls, token: str = Depends(oauth2_scheme)) -> TokenData:
+        try:
+            payload = cls.decode_token(token)
             email: str = payload.get("email")
             role: str = payload.get("role")
             id_usuario: int = payload.get("id_usuario")
@@ -63,10 +75,6 @@ class TokenManager:
                 raise HTTPException(**APP_MESSAGES["token_expired"])
 
             return TokenData(email=email, role=role, id_usuario=id_usuario)
-        except jwt.ExpiredSignatureError:
-            raise HTTPException(**APP_MESSAGES["token_expired"])
-        except jwt.InvalidTokenError:
-            raise HTTPException(**APP_MESSAGES["invalid_token"])
         except Exception as e:
             print(f"Error verificando token: {e}")
             raise HTTPException(**APP_MESSAGES["unauthorized"])

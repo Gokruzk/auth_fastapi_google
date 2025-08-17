@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel
 from typing import Optional, TypeVar
@@ -9,6 +10,15 @@ class BaseDTO(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class LogDTO(BaseDTO):
+    id_log: Optional[int]
+    quien: str
+    accion: str
+    entidad_afectada: str
+    fecha: datetime
+    extra_data: str
 
 
 class ResponseSchema(BaseDTO):

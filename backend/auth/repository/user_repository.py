@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from typing import List, Optional
-from auth.models.user_model import UsuarioModel
+from auth.models import UsuarioModel
 
 
 class UserRepository:
