@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
+packages = [
+    { include = "main.py" }
+]
 dependencies = [
     "asyncpg>=0.30.0",
     "bcrypt>=4.3.0",
@@ -15,10 +18,12 @@ dependencies = [
     "google-auth-oauthlib>=1.2.2",
     "httpx>=0.28.1",
     "passlib>=1.7.4",
-    "psycopg2>=2.9.10",
     "pydantic[email]>=2.11.7",
     "pyjwt>=2.10.1",
     "python-multipart>=0.0.20",
     "sqlalchemy[asyncio]>=2.0.42",
     "uvicorn>=0.35.0",
 ]
+
+[dependency-groups]
+dev = []

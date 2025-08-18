@@ -1,5 +1,5 @@
 from .log_model import LogModel
-from .user_model import RolUsuarioModel, UsuarioModel
+from .user_model import RolUsuarioModel, UsuarioModel, Base
 
 
-__all__ = ["LogModel", "RolUsuarioModel", "UsuarioModel"]
+__all__ = ["Base","LogModel", "RolUsuarioModel", "UsuarioModel"]
