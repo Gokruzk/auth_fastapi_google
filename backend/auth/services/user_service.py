@@ -26,7 +26,7 @@ class UserService:
 
         if user is None:
             return []
-        print(user)
+        
         # Serialize sqlalchemy model to pydantic schema
         user = RUsuarioDTO.model_validate(user)
 
