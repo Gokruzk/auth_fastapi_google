@@ -1,6 +1,6 @@
 from fastapi import Query
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse, HTMLResponse
 import urllib.parse
@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from config import get_session, ServerConfig
 from auth.dtos import UsuarioDTO, Token
 from auth.services import GoogleAuthService, UserService
-from auth.utils import APP_MESSAGES, PasswordManager, TokenManager
+from auth.utils import PasswordManager, ResponsesManager,TokenManager
 
 router = APIRouter()
 
@@ -32,32 +32,18 @@ async def auth(
     """
     service = UserService(db)
     user_data: UsuarioDTO = await service.find_by_email(email=form_data.username)
-    # Determinar el objeto del usuario autenticado
-    authenticated_user = None
-
-    if user_data:  # Si user_data no es vacío
-        authenticated_user: UsuarioDTO = user_data
-
-    # Si no se encuentra el usuario
-    if not authenticated_user:
-        raise HTTPException(
-            status_code=APP_MESSAGES["user_not_found"]["status_code"],
-            detail=APP_MESSAGES["user_not_found"]["detail"],
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    
+    if user_data == []:  # if the user does not exist
+        return ResponsesManager.error("user_not_found")
 
     # Verificar la contraseña
-    if not PasswordManager.verify_password(form_data.password, authenticated_user.contrasena):
-        raise HTTPException(
-            status_code=APP_MESSAGES["incorrect_email_psw"]["status_code"],
-            detail=APP_MESSAGES["incorrect_email_psw"]["detail"],
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if not PasswordManager.verify_password(form_data.password, user_data.contrasena):
+        return ResponsesManager.error("incorrect_email_psw")
 
     # Crear el token de acceso
     access_token = TokenManager.create_access_token(
         data={
-            "email": authenticated_user.email,
+            "email": user_data.email,
             "role": user_data.rol.rol,
             "nombre": user_data.nombres,
         }

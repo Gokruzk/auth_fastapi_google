@@ -16,7 +16,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 
 # ----------------------------
-# Manejo de contraseñas
+# Password manager
 # ----------------------------
 class PasswordManager:
     @staticmethod
@@ -29,8 +29,48 @@ class PasswordManager:
 
 
 # ----------------------------
-# Manejo de tokens JWT
+# Responses's manager
 # ----------------------------
+class ResponsesManager:
+    """
+    Class to centralize responses
+    """
+
+    @staticmethod
+    def success(**kwargs):
+        if "data" in kwargs:
+            return Response(
+                ResponseSchema(
+                    detail=APP_MESSAGES[kwargs["message_key"]]["detail"],
+                    result=kwargs["data"],
+                ).model_dump_json(),
+                status_code=APP_MESSAGES[kwargs["message_key"]]["status_code"],
+                media_type="application/json",
+            )
+        else:
+            return Response(
+                ResponseSchema(
+                    detail=APP_MESSAGES[kwargs["message_key"]]["detail"],
+                ).model_dump_json(),
+                status_code=APP_MESSAGES[kwargs["message_key"]]["status_code"],
+                media_type="application/json",
+            )
+
+    @staticmethod
+    def error(message_key):
+        return Response(
+            ResponseSchema(
+                detail=APP_MESSAGES[message_key]["detail"],
+            ).model_dump_json(),
+            status_code=APP_MESSAGES[message_key]["status_code"],
+            media_type="application/json",
+        )
+
+# ----------------------------
+# JWT's manager
+# ----------------------------
+
+
 class TokenManager:
     @staticmethod
     def create_access_token(data: dict) -> str:

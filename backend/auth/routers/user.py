@@ -1,14 +1,11 @@
-from datetime import timedelta
 from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from config import get_session
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Response
-
+from fastapi import APIRouter, Depends, Path
 from auth.dtos import UsuarioDTO, CreateUsuarioDTO, ResponseSchema, TokenData, Role
 from auth.services import UserService
-from auth.utils.managers import TokenManager, SessionManager
-from auth.utils.messages import APP_MESSAGES
+from auth.utils import TokenManager, SessionManager, ResponsesManager
 
 router = APIRouter()
 
@@ -36,31 +33,15 @@ async def get_all(
         data: List[UsuarioDTO] = await service.get_all()
 
         if data == "US9998":  # Mensaje de error
-            raise HTTPException(
-                **APP_MESSAGES["get_users_error"],
-            )
+            return ResponsesManager.error("get_users_error")
         elif data == []:  # Si no hay usuarios
-            raise HTTPException(**APP_MESSAGES["no_users_found"])
+            return ResponsesManager.error("no_users_found")
 
-    except HTTPException as e:
-        raise e
     except Exception as e:
         print(e)
-        return Response(
-            ResponseSchema(
-                detail=APP_MESSAGES["unexpected_error"]["detail"]
-            ).model_dump_json(),
-            status_code=APP_MESSAGES["unexpected_error"]["status_code"],
-            media_type="application/json",
-        )
+        return ResponsesManager.error("unexpected_error")
     else:
-        return Response(
-            ResponseSchema(
-                detail=APP_MESSAGES["successfully_retrieved"]["detail"], result=data
-            ).model_dump_json(),
-            status_code=APP_MESSAGES["successfully_retrieved"]["status_code"],
-            media_type="application/json",
-        )
+        return ResponsesManager.success(data=data, message_key="successfully_retrieved")
 
 
 @router.get(
@@ -86,32 +67,20 @@ async def find_by_email(
         data: UsuarioDTO = await service.find_by_email(email)
 
         if data == "US9998":  # Mensaje de error
-            raise HTTPException(**APP_MESSAGES["get_user_error"])
+            return ResponsesManager.error("get_users_error")
         elif data == []:  # Si no existe el usuario
-            raise HTTPException(**APP_MESSAGES["user_not_found"])
+            return ResponsesManager.error("user_not_found")
 
-    except HTTPException as e:
-        raise e
     except Exception as e:
         print(e)
-        return Response(
-            ResponseSchema(
-                detail=APP_MESSAGES["get_users_error"]["detail"]).model_dump_json(),
-            status_code=APP_MESSAGES["get_users_error"]["status_code"],
-            media_type="application/json",
-        )
+        return ResponsesManager.error("get_users_error")
     else:
-        return Response(
-            ResponseSchema(
-                detail=APP_MESSAGES["successfully_retrieved"]["detail"], result=data
-            ).model_dump_json(),
-            status_code=APP_MESSAGES["successfully_retrieved"]["status_code"],
-            media_type="application/json",
-        )
+        return ResponsesManager.success(data=data, message_key="successfully_retrieved")
 
 
 @router.post(path="/admin", response_model=ResponseSchema, response_model_exclude_none=True)
-async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depends(SessionManager.rol_checker([Role.admin.value])), db: AsyncSession = Depends(get_session)):
+async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depends(SessionManager.rol_checker([Role.admin.value])), db: AsyncSession = Depends
+                      (get_session)):
     """
     Create a user by an admin account
 
@@ -122,23 +91,19 @@ async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depend
     """
     try:
         service = UserService(db)
-        if new_user.id_rol == 3:
-            user_created: UsuarioDTO = await service.create(new_user)
-        else:
-            pass
-            # user_created: Usuario = await UserService.create_client(new_user)
+        user_created: UsuarioDTO = await service.create(new_user)
 
         if user_created == "US9999":  # Mensaje de error
-            raise HTTPException(**APP_MESSAGES["unexpected_error"])
+            return ResponsesManager.error("get_users_error")
         elif user_created == "US0002":  # Si el dni ya existe
-            raise HTTPException(**APP_MESSAGES["dni_exists"])
+            return ResponsesManager.error("dni_exists")
         elif user_created == "US0003":  # Si el email ya existe
-            raise HTTPException(**APP_MESSAGES["email_exists"])
+            return ResponsesManager.error("email_exis")
         elif user_created == "US0004":  # Si el dni no es válido
-            raise HTTPException(**APP_MESSAGES["invalid_dni"])
+            return ResponsesManager.error("invalid_dn")
 
         role = "Admin"
-        if user_created.id_rol == 3:
+        if user_created.id_rol == 2:
             role = "User"
 
         # Crear el token de acceso
@@ -150,23 +115,8 @@ async def create_user(new_user: CreateUsuarioDTO, token_data: TokenData = Depend
             },
         )
 
-    except HTTPException as e:
-        raise e
     except Exception as e:
         print(e)
-        return Response(
-            ResponseSchema(
-                detail=APP_MESSAGES["unexpected_error"]["detail"]
-            ).model_dump_json(),
-            status_code=APP_MESSAGES["unexpected_error"]["status_code"],
-            media_type="application/json",
-        )
+        return ResponsesManager.error("unexpected_error")
     else:
-        return Response(
-            ResponseSchema(
-                detail=APP_MESSAGES["successfully_created"]["detail"],
-                result=access_token,
-            ).model_dump_json(),
-            status_code=APP_MESSAGES["successfully_created"]["status_code"],
-            media_type="application/json",
-        )
+        return ResponsesManager.success(data=access_token, message_key="successfully_created")
