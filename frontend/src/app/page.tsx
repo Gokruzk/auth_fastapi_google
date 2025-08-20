@@ -1,21 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONT_URL;
-const allowedOrigins = [`${FRONTEND_URL}`, `${API_URL}`];
+// const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONT_URL;
+// const allowedOrigins = [`${FRONTEND_URL}`, `${API_URL}`];
 
 export default function Home() {
   const [token, setToken] = useState<string | null>(null);
+  const popupRef = useRef<Window | null>(null);
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
-      if (!allowedOrigins.includes(event.origin)) return;
+      // if (!allowedOrigins.includes(event.origin)) return;
+
       const { token } = event.data;
       if (token) {
         setToken(token);
         localStorage.setItem("access_token", token);
+
+        // Cierra la ventana emergente si sigue abierta
+        if (popupRef.current && !popupRef.current.closed) {
+          popupRef.current.close();
+        }
       }
     }
 
@@ -25,7 +32,6 @@ export default function Home() {
       window.removeEventListener("message", handleMessage);
     };
   }, []);
-
   function openLoginPopup() {
     const width = 500;
     const height = 600;
