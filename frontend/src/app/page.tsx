@@ -3,19 +3,19 @@
 import { useEffect, useState } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONT_URL;
+const allowedOrigins = [`${FRONTEND_URL}`, `${API_URL}`];
 
 export default function Home() {
   const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
-      if (event.origin !== API_URL) return; // seguridad: solo aceptamos mensajes de backend
-      console.log(event.data);
+      if (!allowedOrigins.includes(event.origin)) return;
       const { token } = event.data;
       if (token) {
         setToken(token);
         localStorage.setItem("access_token", token);
-        // Aquí podrías redirigir a perfil o cambiar UI
       }
     }
 
