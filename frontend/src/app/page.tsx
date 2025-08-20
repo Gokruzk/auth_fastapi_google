@@ -14,6 +14,8 @@ export default function Home() {
     function handleMessage(event: MessageEvent) {
       // if (!allowedOrigins.includes(event.origin)) return;
 
+      console.log("Evento recibido:", event.origin, event.data);
+
       const { token } = event.data;
       if (token) {
         setToken(token);
