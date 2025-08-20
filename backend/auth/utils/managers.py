@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Annotated, List
 
 import jwt
-from fastapi import Depends, HTTPException, Response, status
+from fastapi import Depends, HTTPException, Response
 from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
@@ -66,12 +66,11 @@ class ResponsesManager:
             media_type="application/json",
         )
 
-# ----------------------------
-# JWT's manager
-# ----------------------------
-
 
 class TokenManager:
+    """
+    Class to manage tokens
+    """
     @staticmethod
     def create_access_token(data: dict) -> str:
         to_encode = data.copy()
@@ -95,9 +94,9 @@ class TokenManager:
                 algorithms=[JWTConfig.alogrithm()]
             )
         except jwt.ExpiredSignatureError:
-            raise HTTPException(**APP_MESSAGES["token_expired"])
+            return ResponsesManager.error(APP_MESSAGES["token_expired"])
         except jwt.InvalidTokenError:
-            raise HTTPException(**APP_MESSAGES["invalid_token"])
+            return ResponsesManager.error(APP_MESSAGES["invalid_token"])
 
     @classmethod
     def verify_token(cls, token: str = Depends(oauth2_scheme)) -> TokenData:
@@ -109,21 +108,21 @@ class TokenManager:
             exp: int = payload.get("exp")
 
             if not email or not role:
-                raise HTTPException(**APP_MESSAGES["invalid_token"])
+                return ResponsesManager.error(APP_MESSAGES["token_expired"])
 
             if exp and datetime.fromtimestamp(exp, tz=TimezoneUtils.ECUADOR_TZ) < TimezoneUtils.now_for_database():
-                raise HTTPException(**APP_MESSAGES["token_expired"])
+                return ResponsesManager.error(APP_MESSAGES["invalid_token"])
 
             return TokenData(email=email, role=role, id_usuario=id_usuario)
         except Exception as e:
             print(f"Error verificando token: {e}")
-            raise HTTPException(**APP_MESSAGES["unauthorized"])
+            return ResponsesManager.error(APP_MESSAGES["unauthorized"])
 
 
-# ----------------------------
-# Manejo de sesiones y permisos
-# ----------------------------
 class SessionManager:
+    """
+    Class to manage sessions and roles
+    """
     @staticmethod
     async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> TokenData:
         from services.user_service import UserService
@@ -138,17 +137,12 @@ class SessionManager:
             raise
         except Exception as e:
             print(f"Error inesperado en get_current_user: {e}")
-            return Response(
-                ResponseSchema(
-                    detail="An unexpected error occurred").model_dump_json(),
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                media_type="application/json",
-            )
+            return ResponsesManager.error(APP_MESSAGES["unexpected_error"])
 
     @staticmethod
     def rol_checker(allowed_roles: List[str]):
         def checker(token_data: TokenData = Depends(TokenManager.verify_token)) -> TokenData:
             if token_data.role not in allowed_roles:
-                raise HTTPException(**APP_MESSAGES["forbidden"])
+                return ResponsesManager.error(APP_MESSAGES["forbidden"])
             return token_data
         return checker
