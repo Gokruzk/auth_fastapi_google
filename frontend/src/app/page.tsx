@@ -10,7 +10,7 @@ export default function Home() {
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       if (event.origin !== API_URL) return; // seguridad: solo aceptamos mensajes de backend
-
+      console.log(event.data);
       const { token } = event.data;
       if (token) {
         setToken(token);
@@ -43,7 +43,6 @@ export default function Home() {
     <main>
       <div className="px-9 pt-5">Google Auth</div>
       <div className="px-9 py-5">
-        <p>{API_URL}</p>
         {!token ? (
           <button
             onClick={openLoginPopup}
