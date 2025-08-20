@@ -43,6 +43,7 @@ export default function Home() {
     <main>
       <div className="px-9 pt-5">Google Auth</div>
       <div className="px-9 py-5">
+        <p>{API_URL}</p>
         {!token ? (
           <button
             onClick={openLoginPopup}
